@@ -41,5 +41,6 @@ void loop() {
   Serial.print("Current time is: ");
   Serial.println(ctime(&now));
   delay(1000);
+  Serial.println("");
   //if you can see the time, the program is working
 }
