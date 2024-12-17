@@ -1,7 +1,7 @@
 //#include <TFT_eSPI.h>
 #include<WiFi.h>
 #include <HTTPClient.h>
-#include<time.h>
+#include <NTPClient.h>//时间服务提供程序
 //TFT_eSPI tft = TFT_eSPI();
 const char* ssid = "m0nesy";
 const char* password = "by060326";
@@ -10,15 +10,7 @@ const char* ntpServer = "pool.ntp.org";
 const long utcOffsetInSeconds = 28800;
 
 void setup(){
- /*     tft.init();//初始化
-      tft.setRotation(0);                 //屏幕旋转方向
-      tft.fillScreen(TFT_BLACK);//底色
-      tft.setTextFont(2);
-      tft.setTextSize(2);                 //字体大小
-      tft.setTextColor(TFT_DARKGREEN);    //文字颜色
-      // sprite.setSwapBytes(true);//决定字体是RGB还是BGR
-      tft.setCursor(10,10);
-*/               //文字位置
+
       //WiFi 连接
       Serial.begin(115200);
       WiFi.begin(ssid, password);
