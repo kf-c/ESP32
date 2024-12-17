@@ -1,5 +1,6 @@
 //#include <TFT_eSPI.h>
 #include<WiFi.h>
+#include <WiFiUdp.h>
 #include <HTTPClient.h>
 #include <NTPClient.h>//时间服务提供程序
 //TFT_eSPI tft = TFT_eSPI();
@@ -8,6 +9,9 @@ const char* password = "by060326";
 // 网络时间服务器地址，这里以NTP服务器为例
 const char* ntpServer = "pool.ntp.org";
 const long utcOffsetInSeconds = 28800;
+
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP,"ntp.aliyun.com");
 
 void setup(){
 
