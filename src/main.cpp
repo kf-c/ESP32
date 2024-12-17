@@ -28,17 +28,17 @@ void setup(){
   tft.print(".");
   }
   if(try_time){
-    print(tft,"Connection Success");
+    print("Connection Success");
   }
   else{
-    print(tft,"Connection Failed");
+    print("Connection Failed");
   }
   //time
   configTime(utcOffsetInSeconds, 0, ntpServer);
   while (!time(nullptr)) {
-    print(tft,"Waiting for time sync...");
+    print("Waiting for time sync...");
   }
-  print(tft,"Waiting for time sync...");
+  print("Waiting for time sync...");
   //定时器
   timer = timerBegin(0, 80, true); // 使用定时器 0，预分频器 80，计数器向上
   timerAttachInterrupt(timer, &onTimer, true); // 附加中断服务例程，启用真正的硬件中断
