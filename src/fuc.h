@@ -176,7 +176,6 @@ void Display_Weather() {
   }
 
   //定义answer变量用来存放请求网络服务器后返回的数据
-   String answer0;
    String answer;
   while(client.available())
   {
@@ -202,7 +201,7 @@ void Display_Weather() {
 
   //解析获取到的json数据
   // Stream& input;
-  StaticJsonDocument<512> doc;
+  DynamicJsonDocument doc(512); // 使用DynamicJsonDocument代替StaticJsonDocument
   DeserializationError error = deserializeJson(doc, jsonAnswer);
   if (error) {
     Serial.print("deserializeJson() failed: ");

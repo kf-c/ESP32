@@ -37,7 +37,7 @@ void setup(){
   else{
     print("Connection Failed");
   }
-  tft.drawLine(0,23, 194, 2, TFT_WHITE);  //画线
+  delay(2000);
   timeClient.begin();
   timeClient.setTimeOffset(28800);  // + 1区 偏移3600， +8区 ：3600×8 = 28800
   delay(2500);
