@@ -18,6 +18,9 @@ NTPClient timeClient(ntpUDP,"ntp.aliyun.com");
 const char *host = "api.seniverse.com";//心知天气服务器地址
 
 void setup(){
+  Serial.begin(115200);
+  while(!Serial);
+  Serial.println("loaded.");
   tft.init();//初始化
   tft.setRotation(3);                 //屏幕旋转方向
   tft.fillScreen(TFT_BLACK);//底色

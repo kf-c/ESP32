@@ -35,7 +35,7 @@ void Display_Time() {
   int currentMonth = ptm->tm_mon+1;
   int currentYear = ptm->tm_year+1900;
 
-  tft.fillRect(112,32,28,28,TFT_BLACK);     //部分区域清屏，刷新秒
+  tft.fillRect(112,28,32,40,TFT_BLACK);     //部分区域清屏，刷新秒
   //10+2+10=22，“数字”分辨率10*14像素，连续显示时间隔2像素
   tft.setTextColor(TFT_WHITE);
   tft.setCursor(112, 32, 1);
@@ -164,7 +164,7 @@ void Display_Weather() {
   }
 
   //URL请求地址 //改为你的api密钥和城市拼音
-  String url ="/v3/weather/now.json?key=P5NUAGdPc4f1boCQZ=xiamen&language=zh-Hans&unit=c";
+  String url ="/v3/weather/now.json?key=SIMHXoFn5ZYDmEql3=xiamen&language=zh-Hans&unit=c";
   //发送网络请求
   client.print(String("GET ") + url + " HTTP/1.1\r\n" +
             "Host: " + host + "\r\n" +
@@ -184,8 +184,8 @@ void Display_Weather() {
   }
   //断开服务器连接
   client.stop();
-  //Serial.println();
-  //Serial.println("closing connection");
+  Serial.println();
+  Serial.println("closing connection");
 
   //获得json格式的数据
   String jsonAnswer;
@@ -234,6 +234,7 @@ void Display_Weather() {
   tft.fillRect(5,65,32,16,TFT_BLACK);       //打印地区
   if(now_address=="厦门") {
     showMyFonts(5,65,"厦门" , TFT_GOLD);
+    Serial.print("厦门");
   }
   #define X 4
   #define Y 110
