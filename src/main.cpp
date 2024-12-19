@@ -49,7 +49,7 @@ void setup(){
   //time
   void loop() {
   // put your main code here, to run repeatedly:
-  Display_Weather(); //天气信息每2分钟更新一次
+  //Display_Weather(); //天气信息每2分钟更新一次
   for(int i = 0; i < 115; i++) {
     Display_Time();
     delay(1000);   //间隔1秒访问ntp,刷新时间戳
