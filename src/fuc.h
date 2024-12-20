@@ -1,7 +1,23 @@
-
+#ifndef HEAD
+#define HEAD
+#include <TFT_eSPI.h>
+#include<WiFi.h>
+#include <WiFiUdp.h>
+#include <HTTPClient.h>
+#include <NTPClient.h>//时间服务提供程序
+#endif
+#include <ArduinoJson.h>
+#include <WiFiClient.h>
+// 替换为你申请到的心知天气API Key
+const char* apiKey = "S1Ahf1JET_NF5BU4b";
+// 心知天气API的基础URL
+const char* host = "api.seniverse.com";
+const char* apiUrl = "https://api.seniverse.com/v3/weather/now.json";
+// 要查询天气的城市名称，可按需修改
+const char* city = "xiamen";
+  WiFiClient client;
   extern TFT_eSPI tft;
   extern NTPClient timeClient;
-  extern const char *host;
 void print(
     const char* str1,
     const char*str2 = nullptr,
@@ -35,7 +51,7 @@ void Display_Time() {
   int currentMonth = ptm->tm_mon+1;
   int currentYear = ptm->tm_year+1900;
 
-  tft.fillRect(112,28,32,40,TFT_BLACK);     //部分区域清屏，刷新秒
+  tft.fillRect(112,28,32,32,TFT_BLACK);     //部分区域清屏，刷新秒
   //10+2+10=22，“数字”分辨率10*14像素，连续显示时间隔2像素
   tft.setTextColor(TFT_WHITE);
   tft.setCursor(112, 32, 1);
@@ -154,5 +170,77 @@ void Display_Time() {
 }
 
 
+bool getWeatherInfo() {
+    if (client.connect(host, 80)) {
+        //Serial.println("已连接到天气服务器");
+         // 构建请求URL
+        String requestUrl = String(apiUrl) + "?key=" + apiKey + "&location=" + city + "&language=zh-Hans&unit=c";
+        // 发送GET请求
+        client.print("GET ");
+        client.print(requestUrl);
+        client.print(" HTTP/1.1\r\n");
+        client.print("Host: ");
+        client.print(host);          //url or host
+        client.print("\r\n");
+        client.print("Connection: close\r\n");
+        client.print("\r\n");
+        for(int i = 0; i < 5; i++) {
+            Display_Time();
+            delay(1000);
+        }
+        //Serial.printf("Initial available bytes: %d\n", client.available());
+        // 接收服务器响应
+        //定义answer变量用来存放请求网络服务器后返回的数据
+        String answer;
+        while(client.available())
+        {
+            String line = client.readStringUntil('\r');
+            answer += line;
+        }
+        //断开服务器连接
+        client.stop();
+        //Serial.println("answer:"+answer);
+        //Serial.println("closing connection");
+
+        //获得json格式的数据
+        String jsonAnswer;
+        int jsonIndex;
+        //找到有用的返回数据位置i 返回头不要
+        for (int i = 0; i < answer.length(); i++) {
+            if (answer[i] == '{') {
+            jsonIndex = i;
+            break;
+            }
+        }
+        jsonAnswer = answer.substring(jsonIndex);
+
+        //解析获取到的json数据
+        // Stream& input;
+        StaticJsonDocument<1024> doc;
+        DeserializationError error = deserializeJson(doc, jsonAnswer);
+        /*
+        if (error) {
+            Serial.print("deserializeJson() failed: ");
+            Serial.println(error.c_str());
+            return 0;
+
+        }
+        else Serial.println("deserializeJson() success");
+        */
+        // 提取天气信息
+        const char* weather = doc["results"][0]["now"]["text"].as<const char*>();
+        const char* location = doc["results"][0]["location"]["name"].as<const char*>();
+        int temperature = doc["results"][0]["now"]["temperature"].as<int>();
+        tft.fillRect(4,65,236,33,TFT_BLACK);
+        tft.setCursor(4,70);
+        tft.setTextColor(TFT_YELLOW);
+        tft.print(String(location)+"   "+String(weather)+"   "+String(temperature) + "℃");        
+        return true;
+    } else {
+        tft.setCursor(4,70);
+        tft.println("NULL");
+        return false;
+    }
+}
 
 

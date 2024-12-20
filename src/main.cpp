@@ -3,19 +3,24 @@
 #include <TFT_eSPI.h>
 #include<WiFi.h>
 #include <WiFiUdp.h>
-#include <ArduinoJson.h>
 #include <HTTPClient.h>
 #include <NTPClient.h>//时间服务提供程序
 #include"xingkai_28.h"
-#include<fuc.h>
+#include"fuc.h"
 #endif
 TFT_eSPI tft = TFT_eSPI();
 const char* ssid = "m0nesy";
 const char* password = "by060326";
+//const char* ssid = "ppq";
+//const char* password = "pppppppp";
+// 记录上次更新天气信息的时间戳（毫秒），用于定时更新
+unsigned long lastUpdateTime = millis();
+// 设置更新间隔，这里设为10分钟（600000毫秒），可根据需求调整
+const unsigned long updateInterval = 20000;
 
+bool getWeatherInfo();
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP,"ntp.aliyun.com");
-const char *host = "api.seniverse.com";//心知天气服务器地址
 
 void setup(){
   Serial.begin(115200);
@@ -48,11 +53,12 @@ void setup(){
 }
   //time
   void loop() {
-  // put your main code here, to run repeatedly:
-  //Display_Weather(); //天气信息每2分钟更新一次
-  for(int i = 0; i < 115; i++) {
+    if (millis() - lastUpdateTime >= updateInterval) {
+        lastUpdateTime = millis();
+        getWeatherInfo();
+    }
     Display_Time();
     delay(1000);   //间隔1秒访问ntp,刷新时间戳
-  }
+
 }
 
