@@ -1,72 +1,68 @@
 #include <ArduinoJson.h>
-extern WiFiClient client;
-extern const char* apiKey;
-extern const char* apiUrl;  
-extern const char* city;
+bool getWeatherInfo() {
+    if (client.connect(host, 80)) {
+        Serial.println("已连接到天气服务器");
+         // 构建请求URL
+        String requestUrl = String(apiUrl) + "?key=" + apiKey + "&location=" + city + "&language=zh-Hans&unit=c";
+        // 发送GET请求
+        client.print("GET ");
+        client.print(requestUrl);
+        client.print(" HTTP/1.1\r\n");
+        client.print("Host: ");
+        client.print(host);          //url or host
+        client.print("\r\n");
+        client.print("Connection: close\r\n");
+        client.print("\r\n");
+        delay(4000);
+        Serial.printf("Initial available bytes: %d\n", client.available());
+        // 接收服务器响应
+        //定义answer变量用来存放请求网络服务器后返回的数据
+        String answer;
+        while(client.available())
+        {
+            String line = client.readStringUntil('\r');
+            answer += line;
+        }
+        //断开服务器连接
+        client.stop();
+        Serial.println("answer:"+answer);
+        Serial.println("closing connection");
 
-void print(
-     const char* str1,
-     const char* str2 = nullptr,
-     const char* str3 = nullptr
-) {
-    Serial.print(str1);
-    if (str2 != nullptr) {
-        Serial.print(str2);
+        //获得json格式的数据
+        String jsonAnswer;
+        int jsonIndex;
+        //找到有用的返回数据位置i 返回头不要
+        for (int i = 0; i < answer.length(); i++) {
+            if (answer[i] == '{') {
+            jsonIndex = i;
+            break;
+            }
+        }
+        jsonAnswer = answer.substring(jsonIndex);
+
+        //解析获取到的json数据
+        // Stream& input;
+        StaticJsonDocument<1024> doc;
+        DeserializationError error = deserializeJson(doc, jsonAnswer);
+        if (error) {
+            Serial.print("deserializeJson() failed: ");
+            Serial.println(error.c_str());
+            return 0;
+
+        }
+        else Serial.println("deserializeJson() success");
+        // 提取天气信息
+        const char* weather = doc["results"][0]["now"]["text"].as<const char*>();
+        const char* location = doc["results"][0]["location"]["name"].as<const char*>();
+        double temperature = doc["results"][0]["now"]["temperature"].as<double>();
+        Serial.println("当前城市: " + String(location));
+        Serial.println("天气状况: " + String(weather));
+        Serial.println("当前温度: " + String(temperature) + "℃");
+        
+        return true;
+    } else {
+        Serial.println("无法连接到天气服务器");
+        return false;
     }
-
-    if (str3 != nullptr) {
-        Serial.print(str3);
-    }
-    delay(1000); // 示例：在屏幕左上角绘制字符串
-}
-
-void getWeatherInfo() {
-  if (client.connect(apiUrl, 80)) {
-    // 构建请求URL，按照心知天气API要求的格式
-    String requestUrl = "/v3/weather/now.json?key=" + String(apiKey) + "&location=" + String(city) + "&language=zh-Hans&unit=c";
-    Serial.println("正在发送请求: " + requestUrl);
-    client.println("GET " + requestUrl + " HTTP/1.1");
-    client.println("Host: api.seniverse.com");
-    client.println("Connection: close");
-    client.println();
-
-    // 等待服务器响应
-    int waitTime = 0;
-    unsigned long timeout = millis();
-    while (client.connected() && !client.available()) {
-      if (millis() - timeout > 10000) {
-        Serial.println("URL请求超时");
-        return;
-      }
-    }
-
-    // 读取响应数据
-    String response = "";
-    while (client.available()) {
-      response += (char)client.read();
-    }
-    client.stop();
-
-    // 使用ArduinoJson库解析JSON数据
-    StaticJsonDocument<1024> doc;
-    DeserializationError error = deserializeJson(doc, response);
-    if (error) {
-      Serial.println("解析JSON数据出错: " + String(error.c_str()));
-      return;
-    }
-
-    // 提取天气信息，以下是示例提取当前温度和天气状况，根据API返回的实际结构调整
-    const char* weather = doc["results"][0]["now"]["text"].as<const char*>();
-    double temperature = doc["results"][0]["now"]["temperature"].as<double>();
-    Serial.println("当前城市: " + String(city));
-    Serial.println("天气状况: " + String(weather));
-    Serial.println("当前温度: " + String(temperature) + "℃");
-  } else {
-    Serial.println("无法连接到天气服务器");
-    static int count = 0; 
-    count++;
-    if (count > 5) {
-      return;
-    }
-  }
+    
 }
