@@ -50,15 +50,21 @@ void setup(){
   timeClient.setTimeOffset(28800);  // + 1区 偏移3600， +8区 ：3600×8 = 28800
   delay(2500);
   tft.fillScreen(TFT_BLACK);
-}
-  //time
+  Display_Time();
+  getWeatherInfo();
+  tft.setTextColor(TFT_ORANGE);
+  Display_Time();
+  getWeatherInfo();
+  tft.drawString("--神山鬼眼",80,210);
+
   void loop() {
     if (millis() - lastUpdateTime >= updateInterval) {
         lastUpdateTime = millis();
         getWeatherInfo();
-    }
+    }   
+    delay(1000);
     Display_Time();
-    delay(1000);   //间隔1秒访问ntp,刷新时间戳
+       //间隔1秒访问ntp,刷新时间戳
 
 }
 

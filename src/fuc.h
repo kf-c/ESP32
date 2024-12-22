@@ -130,7 +130,7 @@ void Display_Time() {
     tft.println(monthDay);    
   }
   switch(weekDay){
-    case 0: showMyFonts(2, 2, "周日", TFT_GREENYELLOW);break; 
+    case 0: showMyFonts(2, 2, "周天", TFT_GREENYELLOW);break; 
     case 1: showMyFonts(2, 2, "周一", TFT_GREENYELLOW);break; 
     case 2: showMyFonts(2, 2, "周二", TFT_GREENYELLOW);break; 
     case 3: showMyFonts(2, 2, "周三", TFT_GREENYELLOW);break; 
@@ -184,18 +184,25 @@ bool getWeatherInfo() {
         client.print("\r\n");
         client.print("Connection: close\r\n");
         client.print("\r\n");
+        Display_Time();
         for(int i = 0; i < 5; i++) {
-            Display_Time();
-            delay(1000);
+          delay(1000);
+          Display_Time();
+            
         }
         //Serial.printf("Initial available bytes: %d\n", client.available());
         // 接收服务器响应
         //定义answer变量用来存放请求网络服务器后返回的数据
         String answer;
+        int bias = millis();
         while(client.available())
         {
             String line = client.readStringUntil('\r');
             answer += line;
+            if(millis() - bias > 800){
+              bias = millis();
+              Display_Time();
+            }
         }
         //断开服务器连接
         client.stop();
@@ -241,6 +248,7 @@ bool getWeatherInfo() {
         tft.println("NULL");
         return false;
     }
+    Display_Time();
 }
 
 
