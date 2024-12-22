@@ -18,7 +18,6 @@ unsigned long lastUpdateTime = millis();
 // 设置更新间隔，这里设为10分钟（600000毫秒），可根据需求调整
 const unsigned long updateInterval = 20000;
 
-bool getWeatherInfo();
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP,"ntp.aliyun.com");
 
@@ -56,7 +55,7 @@ void setup(){
   Display_Time();
   getWeatherInfo();
   tft.drawString("--神山鬼眼",80,210);
-
+}
   void loop() {
     if (millis() - lastUpdateTime >= updateInterval) {
         lastUpdateTime = millis();
